@@ -6,6 +6,10 @@ import in.yashsachan.SecureFileShare.model.User;
 import in.yashsachan.SecureFileShare.repository.UserRepository;
 import in.yashsachan.SecureFileShare.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,13 +34,20 @@ public class FileController {
     }
 
     @GetMapping("/download/{fileId}")
-    public byte[] downloadFile(@PathVariable String fileId, Authentication authentication) throws Exception {
+    public ResponseEntity<byte[]> downloadFile(@PathVariable String fileId, Authentication authentication) throws Exception {
         FileMetadata fileMetadata = fileService.findById(fileId);
         if (fileMetadata == null) {
             throw new RuntimeException("File not found");
         }
 
-        // Optionally check if user is the owner or has the right role
-        return fileService.getFileContent(fileMetadata);
+        byte[] fileContent = fileService.getFileContent(fileMetadata);
+
+        // Set response headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG); // Change based on file type
+        headers.setContentLength(fileContent.length);
+        headers.setContentDispositionFormData("attachment", fileMetadata.getFileName());
+
+        return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
     }
 }

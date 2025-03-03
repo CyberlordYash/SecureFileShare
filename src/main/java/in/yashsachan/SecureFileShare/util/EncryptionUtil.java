@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.security.Key;
 
 public class EncryptionUtil {
-    // 256-bit key (32 bytes). Store securely in real projects.
+    // 256-bit key (32 bytes)
     private static final String SECRET_KEY = "0123456789ABCDEF0123456789ABCDEF";
 
     public static void encryptAndSaveFile(byte[] fileData, String filePath) throws Exception {
