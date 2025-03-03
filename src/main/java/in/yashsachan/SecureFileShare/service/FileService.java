@@ -27,7 +27,7 @@ public class FileService {
             java.nio.file.Files.createDirectories(uploadPath);
         }
 
-        // Create a unique file name
+        // unique file name
         String filePath = java.nio.file.Paths.get(uploadDir, System.currentTimeMillis() + "_" + originalFilename).toString();
 
         // Encrypt and save the file data

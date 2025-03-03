@@ -14,6 +14,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 @RestController
 @RequestMapping("/api/files")
 public class FileController {
@@ -41,13 +44,16 @@ public class FileController {
         }
 
         byte[] fileContent = fileService.getFileContent(fileMetadata);
-
+        String mimeType= Files.probeContentType(Paths.get(fileMetadata.getFilePath()));
+        if(mimeType==null){
+            mimeType = "application/octet-stream";
+        }
         // Set response headers
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG); // Change based on file type
+//        headers.setContentType(MediaType.IMAGE_JPEG);
+        headers.setContentType(MediaType.parseMediaType(mimeType));
         headers.setContentLength(fileContent.length);
         headers.setContentDispositionFormData("attachment", fileMetadata.getFileName());
-
         return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
     }
 }
