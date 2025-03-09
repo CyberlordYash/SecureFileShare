@@ -5,11 +5,15 @@ import in.yashsachan.SecureFileShare.model.Role;
 import in.yashsachan.SecureFileShare.repository.RoleRepository;
 import in.yashsachan.SecureFileShare.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import  in.yashsachan.SecureFileShare.model.User;
+
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,14 +34,17 @@ public class UserService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found: " + username);
         }
+        // Convert each Role to a SimpleGrantedAuthority
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
+
+
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                user.getRoles().stream()
-                        .map(Role::getName)
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList())
+                authorities
         );
     }
 
